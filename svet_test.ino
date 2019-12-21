@@ -185,7 +185,7 @@ void autoPlayTick(){
  if ( mode > MODES_AMOUNT) mode =0;
   }
 }
-void autoBrightTick(){
+void autoBrightTick(){ // dont work, need test
   if(autobrightTimer.isReady() && autobright){
     // work with photoresist
     int val;
