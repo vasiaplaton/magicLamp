@@ -69,7 +69,7 @@ void setup() {
   else if (FIRE_PALETTE == 1) gPal = CRGBPalette16( CRGB::Black, CRGB::Red, CRGB::Yellow, CRGB::White);
   else if (FIRE_PALETTE == 2) gPal = CRGBPalette16( CRGB::Black, CRGB::Blue, CRGB::Aqua,  CRGB::White);
   else if (FIRE_PALETTE == 3) gPal = CRGBPalette16( CRGB::Black, CRGB::Red, CRGB::White);
- // LoadDataFromEeprom();
+ LoadDataFromEeprom();
 
 }
 
@@ -229,4 +229,5 @@ void loop() {
   ModeTick(); 
 autoPlayTick();
 autoBrightTick();
+eepromTick();
   }
