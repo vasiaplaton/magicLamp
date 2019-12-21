@@ -187,7 +187,7 @@ void autobright_off_anim(int delayy, int maxx){
           }
           
 }
-void phototocirc(){
+/*void phototocirc(){
       int val;
    val=map(analogRead(A6), 360, 900, 0, NUM_LEDS-1);
    FastLED.clear();
@@ -195,4 +195,4 @@ void phototocirc(){
     leds[i]=CRGB::Red;
    }
    FastLED.show();
-  }
+  }*/

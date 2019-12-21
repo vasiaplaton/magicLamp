@@ -14,7 +14,7 @@
 #define DOWN_PIN 2   // pin of down button   
 #define BRIGHTNESS 250 // std brightness in start
 #define MIN_BRIGHTNESS 2 // min brightness for hand setting
-#define MODES_AMOUNT 8 // number of modes
+#define MODES_AMOUNT 7 // number of modes
 #define STD_SPEED 6 // speed of animation bigger - slowly
 // end
 // leds routins
@@ -173,7 +173,7 @@ void ModeTick(){
       for(int i=0; i<NUM_LEDS; i++) leds[i]=CRGB::White;
       break;
       case 7:
-      phototocirc();
+     // phototocirc();
       break;
     }
   }
