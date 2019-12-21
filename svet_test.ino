@@ -5,7 +5,8 @@
 #define TRACK_STEP 1 // less - more steps in animation
 #define FIRE_PALETTE 0  // types of fire
 #define AUTOPLAY_TIME 30 // time of change mode
-#define AUTOBRIGHT_TIME 500
+#define AUTOBRIGHT_TIME 300 // time of autobright
+#define COEF 0.6 // coef for autobright 0-1000(0,001-1,000);
 #define NUM_LEDS 12 // number of leds
 #define NUM_LEDS1 6 // 1/2 number of leds for fire
 #define DATA_PIN 9 // pin of ws2812b
@@ -13,7 +14,7 @@
 #define DOWN_PIN 2   // pin of down button   
 #define BRIGHTNESS 250 // std brightness in start
 #define MIN_BRIGHTNESS 2 // min brightness for hand setting
-#define MODES_AMOUNT 7 // number of modes
+#define MODES_AMOUNT 8 // number of modes
 #define STD_SPEED 6 // speed of animation bigger - slowly
 // end
 // leds routins
@@ -29,6 +30,7 @@ GTimer_ms autobrightTimer(AUTOBRIGHT_TIME);
 // variables
 boolean loadingFlag = true;
 boolean UP_CL; 
+float temp_br;
 boolean DOWN_CL;
 bool gReverseDirection = false;
 boolean power=1;
@@ -171,7 +173,7 @@ void ModeTick(){
       for(int i=0; i<NUM_LEDS; i++) leds[i]=CRGB::White;
       break;
       case 7:
-
+      phototocirc();
       break;
     }
   }
@@ -189,14 +191,15 @@ void autoBrightTick(){ // dont work, need test
   if(autobrightTimer.isReady() && autobright){
     // work with photoresist
     int val;
-   val=analogRead(A6);
-   val=map(val, 0, 1024, MIN_BRIGHTNESS, 255);
-   FastLED.setBrightness(val);
+   val=map(analogRead(A6), 100, 1024, 2, 250);
+   temp_br=val*COEF;
+   if(temp_br>MIN_BRIGHTNESS) FastLED.setBrightness(temp_br);
+   else FastLED.setBrightness(MIN_BRIGHTNESS);
   }
 }
 void loop() {
   ButtonTick();
   ModeTick(); 
 autoPlayTick();
-
+autoBrightTick();
   }
