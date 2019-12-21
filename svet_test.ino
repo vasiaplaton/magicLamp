@@ -1,6 +1,7 @@
 #include <FastLED.h>
 #include "GyverButton.h"
 #include "GyverTimer.h"
+#include <EEPROM.h>
 // settings
 #define TRACK_STEP 1 // less - more steps in animation
 #define FIRE_PALETTE 0  // types of fire
@@ -8,6 +9,8 @@
 #define AUTOBRIGHT_TIME 300 // time of autobright
 #define COEF 0.6 // coef for autobright 0-1000(0,001-1,000);
 #define NUM_LEDS 12 // number of leds
+#define EEPROM_TIME 1000 // in ms
+#define EEPROM_STD_ST 1 // eeprom on/off
 #define NUM_LEDS1 6 // 1/2 number of leds for fire
 #define DATA_PIN 9 // pin of ws2812b
 #define UP_PIN 3 // pin of up button
@@ -16,6 +19,7 @@
 #define MIN_BRIGHTNESS 2 // min brightness for hand setting
 #define MODES_AMOUNT 7 // number of modes
 #define STD_SPEED 6 // speed of animation bigger - slowly
+
 // end
 // leds routins
 CRGB leds[NUM_LEDS];
@@ -27,6 +31,7 @@ GButton DOWN(DOWN_PIN, LOW_PULL, NORM_OPEN);
 GTimer_ms effectTimer(10); //60
 GTimer_ms autoplayTimer((long)AUTOPLAY_TIME * 1000);
 GTimer_ms autobrightTimer(AUTOBRIGHT_TIME);
+GTimer_ms eepromTimer(EEPROM_TIME);
 // variables
 boolean loadingFlag = true;
 boolean UP_CL; 
@@ -36,11 +41,21 @@ bool gReverseDirection = false;
 boolean power=1;
 boolean autoplay=0;
 boolean autobright=0;
+boolean eeprom=EEPROM_STD_ST;
 int sped=STD_SPEED;
 int brightness=BRIGHTNESS;
-int mode;
+int mode=0;
 int a=0;
 int prevmode;
+void LoadDataFromEeprom(){
+  if(eeprom){
+    autoplay=EEPROM.read(0);
+    autobright=EEPROM.read(1);
+    if(!autoplay) mode=EEPROM.read(2);
+    if(!autobright) brightness=EEPROM.read(3);
+    sped=EEPROM.read(4);
+  }
+}
 void setup() { 
       FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   UP.setTimeout(300);
@@ -54,6 +69,7 @@ void setup() {
   else if (FIRE_PALETTE == 1) gPal = CRGBPalette16( CRGB::Black, CRGB::Red, CRGB::Yellow, CRGB::White);
   else if (FIRE_PALETTE == 2) gPal = CRGBPalette16( CRGB::Black, CRGB::Blue, CRGB::Aqua,  CRGB::White);
   else if (FIRE_PALETTE == 3) gPal = CRGBPalette16( CRGB::Black, CRGB::Red, CRGB::White);
+ // LoadDataFromEeprom();
 
 }
 
@@ -187,7 +203,7 @@ void autoPlayTick(){
  if ( mode > MODES_AMOUNT) mode =0;
   }
 }
-void autoBrightTick(){ // dont work, need test
+void autoBrightTick(){ 
   if(autobrightTimer.isReady() && autobright){
     // work with photoresist
     int val;
@@ -195,6 +211,17 @@ void autoBrightTick(){ // dont work, need test
    temp_br=val*COEF;
    if(temp_br>MIN_BRIGHTNESS) FastLED.setBrightness(temp_br);
    else FastLED.setBrightness(MIN_BRIGHTNESS);
+  }
+}
+void eepromTick(){
+  if (eepromTimer.isReady() && eeprom){
+    
+    // need to save mode, autoplay, autobright, brightness if !autobright, sped;
+    EEPROM.update(0, autoplay);
+    EEPROM.update(1, autobright);
+    if(!autoplay) EEPROM.update(2, mode);
+    if(!autobright) EEPROM.update(3, brightness);
+    EEPROM.update(4, sped);
   }
 }
 void loop() {
