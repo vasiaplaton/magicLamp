@@ -1,4 +1,4 @@
-
+int aa=0;
 // ****************************** ОГОНЁК ******************************
 int16_t position;
 boolean direction;
@@ -190,6 +190,39 @@ void autobright_off_anim(int delayy, int maxx){
           FastLED.show();
           }
           
+}
+#define HUE_START 3     // начальный цвет огня (0 красный, 80 зелёный, 140 молния, 190 розовый)
+#define HUE_GAP 18      // коэффициент цвета огня (чем больше - тем дальше заброс по цвету)
+#define SMOOTH_K 0.15   // коэффициент плавности огня
+#define MIN_BRIGHT 80   // мин. яркость огня
+#define MAX_BRIGHT 255  // макс. яркость огня
+#define MIN_SAT 245     // мин. насыщенность
+#define MAX_SAT 255     // макс. насыщенность
+
+// для разработчиков
+#define ZONE_AMOUNT NUM_LEDS   // количество зон
+byte zoneValues[ZONE_AMOUNT];
+byte zoneRndValues[ZONE_AMOUNT];
+
+#define ORDER_GRB       // порядок цветов ORDER_GRB / ORDER_RGB / ORDER_BRG
+#define COLOR_DEBTH 3   // цветовая глубина: 1, 2, 3 (в байтах)
+
+void fire1(){
+  int val;
+  aa++;
+  if((aa%5)==0){
+    for(int i=0; i<NUM_LEDS; i++){
+      zoneRndValues[i] = random(0, 10);
+    }
+  }
+  int thisPos = 0, lastPos = 0;
+ for(int i=0; i<NUM_LEDS; i++){
+      zoneValues[i] = (float)zoneValues[i] * (1 - SMOOTH_K) + (float)zoneRndValues[i] * 10 * SMOOTH_K;
+      val=zoneValues[i];
+      CHSV color = CHSV(HUE_START + map(val, 20, 60, 0, HUE_GAP), constrain(map(val, 20, 60, MAX_SAT, MIN_SAT), 0, 255), constrain(map(val, 20, 60, MIN_BRIGHT, MAX_BRIGHT), 0, 255));
+      leds[i]=color;
+    }  
+ FastLED.show();
 }
 /*void phototocirc(){
       int val;

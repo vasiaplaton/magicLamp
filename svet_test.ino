@@ -36,7 +36,7 @@ LOng press UP & DOWN - off system(for switch on system use 1x UP or DOWN)
 #define DOWN_PIN 2   // pin of down button   
 #define BRIGHTNESS 250 // std brightness in start
 #define MIN_BRIGHTNESS 2 // min brightness for hand setting
-#define MODES_AMOUNT 7 // number of modes
+#define MODES_AMOUNT 8 // number of modes
 #define STD_SPEED 6 // speed of animation bigger - slowly
 
 // end
@@ -107,7 +107,7 @@ uint32_t getPixColor(int thisPixel) {
 }
 // next mode func
 void Next_mode(){
-   if(mode<MODES_AMOUNT) mode++;
+   if(mode<MODES_AMOUNT-1) mode++;
    loadingFlag = true;
    FastLED.clear();
   /// leds[1] = CRGB::Red;
@@ -203,15 +203,11 @@ void ModeTick(){ // draw mode
         break;
     }
  }
-  if( mode >= 6 && (a%sped)==0){
-    switch (mode) {
-      case 6:
+  if( mode == 6 && (a%sped)==0){
       for(int i=0; i<NUM_LEDS; i++) leds[i]=CRGB::White;
-      break;
-      case 7:
-     // phototocirc();
-      break;
-    }
+  }
+  if( mode == 7 && (a%2)==0){
+      fire1();
   }
   FastLED.show();
   }
