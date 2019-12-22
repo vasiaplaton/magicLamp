@@ -1,3 +1,22 @@
+/*
+Code for the project magiclamp.
+Scheme, board https://github.com/vasiaplaton/magiclamp  (private repo)
+Author: Vasiliy Platon - website vasblog.tk, youtube VasChanell.
+*/
+/*
+Control 
+1x UP - next mode
+1x DOWN - previous mode
+Long press UP - brightness UP
+Long press DOWN - brightness DOWN
+LOng press UP & DOWN - off system(for switch on system use 1x UP or DOWN)
+2x UP - speed up
+2x DOWN - speed down
+3x UP - autobright on
+3x DOWN - autobright off
+4x UP - autoplay on
+4x DOWN - autoplay off
+*/
 #include <FastLED.h>
 #include "GyverButton.h"
 #include "GyverTimer.h"
@@ -33,65 +52,67 @@ GTimer_ms autoplayTimer((long)AUTOPLAY_TIME * 1000);
 GTimer_ms autobrightTimer(AUTOBRIGHT_TIME);
 GTimer_ms eepromTimer(EEPROM_TIME);
 // variables
-boolean loadingFlag = true;
-boolean UP_CL; 
-float temp_br;
-boolean DOWN_CL;
+boolean loadingFlag = true; // need or not setup for effect
+boolean UP_CL; // long click UP
+float temp_br; // temp brightness for autobright
+boolean DOWN_CL; // long click DOWN
 bool gReverseDirection = false;
-boolean power=1;
-boolean autoplay=0;
-boolean autobright=0;
+boolean power=1; // power in start
+boolean autoplay=0; // autoplay start state
+boolean autobright=0; // autobright start state 
 boolean eeprom=EEPROM_STD_ST;
 int sped=STD_SPEED;
 int brightness=BRIGHTNESS;
-int mode=0;
+int mode=0; // mode start
 int a=0;
-int prevmode;
-void LoadDataFromEeprom(){
+void LoadDataFromEeprom(){ // reed data from eeprom in setup 
   if(eeprom){
     autoplay=EEPROM.read(0);
     autobright=EEPROM.read(1);
-    if(!autoplay) mode=EEPROM.read(2);
-    if(!autobright) brightness=EEPROM.read(3);
-    sped=EEPROM.read(4);
+    if(!autoplay) mode=EEPROM.read(2); // if autoplay on, don't need mode
+    if(!autobright) brightness=EEPROM.read(3); // if autobrightness on, don't need brightness
+    sped=EEPROM.read(4); // read speed
   }
 }
 void setup() { 
-      FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+      FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS); // leds start
+      //button settings
   UP.setTimeout(300);
   UP.setStepTimeout(10);
   DOWN.setTimeout(300);
   DOWN.setStepTimeout(10);
-  
+  // seed for random
   randomSeed(analogRead(0));
-  
+  //fire palette
   if (FIRE_PALETTE == 0) gPal = HeatColors_p;
   else if (FIRE_PALETTE == 1) gPal = CRGBPalette16( CRGB::Black, CRGB::Red, CRGB::Yellow, CRGB::White);
   else if (FIRE_PALETTE == 2) gPal = CRGBPalette16( CRGB::Black, CRGB::Blue, CRGB::Aqua,  CRGB::White);
   else if (FIRE_PALETTE == 3) gPal = CRGBPalette16( CRGB::Black, CRGB::Red, CRGB::White);
+  // load data from eeprom 
  LoadDataFromEeprom();
 
 }
 
 
-// залить все
+// fill all leds 
 void fillAll(CRGB newcolor) {
   for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = newcolor;
   }
 }
 
-// функция получения цвета пикселя по его номеру
+// get pix color know his nubmer
 uint32_t getPixColor(int thisPixel) {
   return (((uint32_t)leds[thisPixel].r << 16) | ((long)leds[thisPixel].g << 8 ) | (long)leds[thisPixel].b);
 }
-
+// next mode func
 void Next_mode(){
    if(mode<MODES_AMOUNT) mode++;
    loadingFlag = true;
    FastLED.clear();
   /// leds[1] = CRGB::Red;
 }
+//previous mode func
 void Prev_mode(){
   if(mode>0) mode--;
   loadingFlag = true;
@@ -103,34 +124,33 @@ void ButtonTick(){
       DOWN.tick();
       UP_CL=UP.isStep();
       DOWN_CL=DOWN.isStep();
-      if( UP_CL && DOWN_CL){
-        power=0;
-        //delay(1000);
+      if( UP_CL && DOWN_CL){ // long press DOWN & UP
+        power=0; // power off
       }
       
-      if(UP.hasClicks() && !DOWN_CL  ){
+      if(UP.hasClicks() && !DOWN_CL  ){ // UP has clicked
         byte clicks = UP.getClicks();
        switch(clicks){
-          case 1:
+          case 1: // one click
           if(!power) power=1;
           else Next_mode();
           break;
-          case 2:
+          case 2: // two click
           if(sped>1) sped--;
           break;
-          case 3:
+          case 3: // three click
           // autobright on
           autobright_on_anim(5, 50);
           autobright=1;
           break;
           case 4:
+          // autoplay on
           autoplay_on_anim(50);
-          autoplay=1;
-                    // autoplay on
+          autoplay=1; 
           break;
         }
       }
-      if(UP_CL  && !DOWN_CL ){
+      if(UP_CL  && !DOWN_CL ){ // long click 
         if(brightness+1 < 255) brightness += 1;
       }
       if(DOWN.hasClicks() && !UP_CL ){
@@ -149,22 +169,22 @@ void ButtonTick(){
           autobright=0;
           break;
           case 4:
+          // autoplay off 
           autoplay_off_anim(50);
-          autoplay=0;
-   // autoplay off       
+          autoplay=0;      
           break;
         }
       }
-      if(DOWN_CL && !UP_CL ){
+      if(DOWN_CL && !UP_CL ){ // long click 
         if(brightness-1>MIN_BRIGHTNESS) brightness -= 1;
       }
  
 
-  if(power && !autobright)    FastLED.setBrightness(brightness);
-   if(!power && !autobright) FastLED.setBrightness(0);
+  if(power && !autobright)    FastLED.setBrightness(brightness); // power on, set normal brightness
+   if(!power) FastLED.setBrightness(0); // power off, off leds
   FastLED.show();
 }
-void ModeTick(){
+void ModeTick(){ // draw mode
   if (effectTimer.isReady() && power) {
       a++;
   if(mode<6 && ((a%sped)==0)){
@@ -197,13 +217,13 @@ void ModeTick(){
   }
 //  FastLED.show();
 }
-void autoPlayTick(){
+void autoPlayTick(){ // autoplay tick
     if (autoplayTimer.isReady() && autoplay) {// таймер смены режима
- mode++;
+ mode++; 
  if ( mode > MODES_AMOUNT) mode =0;
   }
 }
-void autoBrightTick(){ 
+void autoBrightTick(){  // autobright tick
   if(autobrightTimer.isReady() && autobright){
     // work with photoresist
     int val;
@@ -213,7 +233,7 @@ void autoBrightTick(){
    else FastLED.setBrightness(MIN_BRIGHTNESS);
   }
 }
-void eepromTick(){
+void eepromTick(){ // save to eeprom settings everu 1s
   if (eepromTimer.isReady() && eeprom){
     
     // need to save mode, autoplay, autobright, brightness if !autobright, sped;
@@ -225,6 +245,7 @@ void eepromTick(){
   }
 }
 void loop() {
+  //timer ticks
   ButtonTick();
   ModeTick(); 
 autoPlayTick();

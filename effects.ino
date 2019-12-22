@@ -144,6 +144,7 @@ void fade() {
   }
 }
 void autoplay_off_anim(int delayy){
+           loadingFlag = true; // fixed bug(after animation mode don't worked correct)
             for(int i=0; i<NUM_LEDS; i++){
             leds[i]=CRGB::Red;
           }
@@ -155,6 +156,7 @@ void autoplay_off_anim(int delayy){
           }
 }
 void autoplay_on_anim(int delayy){
+       loadingFlag = true; // fixed bug(after animation mode don't worked correct)
             for(int i=0; i<NUM_LEDS; i++){
             leds[i]=CRGB::Black;
           }
@@ -166,6 +168,7 @@ void autoplay_on_anim(int delayy){
           }
 }
 void autobright_on_anim(int delayy, int maxx){
+  loadingFlag = true; // fixed bug(after animation mode don't worked correct)
               for(int i=0; i<NUM_LEDS; i++){
             leds[i]=CRGB::Red;
           }
@@ -177,6 +180,7 @@ void autobright_on_anim(int delayy, int maxx){
           
 }
 void autobright_off_anim(int delayy, int maxx){
+  loadingFlag = true; // fixed bug(after animation mode don't worked correct)
               for(int i=0; i<NUM_LEDS; i++){
             leds[i]=CRGB::Red;
           }
