@@ -224,6 +224,7 @@ void fire1(){
     }  
  FastLED.show();
 }
+
 /*void phototocirc(){
       int val;
    val=map(analogRead(A6), 360, 900, 0, NUM_LEDS-1);
