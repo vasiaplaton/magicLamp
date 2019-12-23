@@ -211,12 +211,11 @@ void ModeTick(){ // draw mode
   }
   FastLED.show();
   }
-//  FastLED.show();
 }
 void autoPlayTick(){ // autoplay tick
     if (autoplayTimer.isReady() && autoplay) {// таймер смены режима
  mode++; 
- if ( mode > MODES_AMOUNT) mode =0;
+ if ( mode >= MODES_AMOUNT) mode =0;
   }
 }
 void autoBrightTick(){  // autobright tick
