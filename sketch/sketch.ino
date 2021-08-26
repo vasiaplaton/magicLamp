@@ -222,7 +222,7 @@ void autoBrightTick(){  // autobright tick
   if(autobrightTimer.isReady() && autobright){
     // work with photoresist
     int val;
-   val=map(analogRead(A6), 100, 1024, 2, 250);
+   val=map(analogRead(6), 100, 1024, 2, 250);
    temp_br=val*COEF;
    if(temp_br>MIN_BRIGHTNESS) FastLED.setBrightness(temp_br);
    else FastLED.setBrightness(MIN_BRIGHTNESS);
